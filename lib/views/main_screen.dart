@@ -2,6 +2,8 @@ import 'dart:convert' as json;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:ubiqmart_v1/api/api_call/getUserDetails.dart';
 import 'package:ubiqmart_v1/model/getdataUser.dart';
 import 'package:ubiqmart_v1/views/Drawer_list/Profile.dart';
@@ -76,10 +78,73 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {});
   }
 
+  //------------------
+  String? _currentAddress;
+  Position? _currentPosition;
+
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _getAddressFromLatLng(Position position) async {
+    await placemarkFromCoordinates(11.0168, 76.9558)
+        .then((List<Placemark> placemarks) {
+      Placemark place = placemarks[0];
+      setState(() {
+        _currentAddress = place.locality;
+        // '${place.street}, ${place.subLocality},${place.subAdministrativeArea}, ${place.postalCode}';
+      });
+      print("printing check for display current address : ${_currentAddress}");
+    }).catchError((e) {
+      debugPrint(e);
+    });
+  }
+
+  Future<void> _getCurrentPosition() async {
+    //Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+      _getAddressFromLatLng(_currentPosition!);
+    }).catchError((e) {
+      debugPrint(e);
+    });
+    print("Location Local of Customer : ${_currentPosition}");
+  }
+
+//--------------------------
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getCurrentPosition();
     getUserDetail();
   }
 
@@ -98,6 +163,11 @@ class _MainScreenState extends State<MainScreen> {
                         children: [
                           Text(
                             "Hello ${getDataUser!.name}..!",
+                            style:
+                                TextStyle(color: Colors.white54, fontSize: 35),
+                          ),
+                          Text(
+                            "${_currentAddress}",
                             style:
                                 TextStyle(color: Colors.white54, fontSize: 35),
                           ),

@@ -21,6 +21,9 @@ class _HomeState extends State<Home> {
   int activeIndex = 1;
   int a = 0;
   GetBannerDataModel? getBanData;
+  List topBannerData = [];
+  List bottomBannerData = [];
+
   getBannerData(latitude, longitude) async {
     print("gggggg $getBanData");
     final storage = FlutterSecureStorage();
@@ -37,6 +40,16 @@ class _HomeState extends State<Home> {
 
     print("heyyyy yuvan : ${getBanData}");
     print("get bannaer... ${getBanData!.data![0].storeId}");
+    for (int i = 0; i < getBanData!.data!.length; i++) {
+      if (getBanData!.data![i].bannerPosition == "Top Banner") {
+        print("top ban check :- ${getBanData!.data![i].bannerPosition}");
+        topBannerData.add(getBanData!.data![i].bannerImage);
+      } else {
+        bottomBannerData.add(getBanData!.data![i]);
+      }
+    }
+    print("top ban ${topBannerData}");
+    print("low ban ${bottomBannerData}");
     setState(() {
       a = 1;
     });
@@ -51,21 +64,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map> bannerData;
-    List<Widget> items = [
-      carouselItemModel("${getBanData!.data![0].bannerImage}"),
-      carouselItemModel(
-          "https://media.istockphoto.com/id/1213523286/photo/multi-generation-family-shopping-at-supermarket.jpg?s=612x612&w=0&k=20&c=4YpR78Tzd9fHYy7FluMpE-nKXlTXzstRIi-BIIvPnDE="),
-      carouselItemModel(
-          "https://media.istockphoto.com/id/1213544046/photo/happy-grocery-store-owner-holding-credit-card-reader.jpg?s=612x612&w=0&k=20&c=UJpio_CiETgafl9-vdMBQvkMzxKgASy1LkGlHwg_DBY="),
-      carouselItemModel(
-          "https://media.istockphoto.com/id/1411210350/photo/indian-woman-shopping-at-grocery-store.jpg?s=612x612&w=0&k=20&c=S2jG8U9lFXTiIJuBERb9j-XvXxNVwGqeCU9BYhWhd_4="),
-      carouselItemModel(
-          "https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8b25saW5lJTIwZGVsaXZlcnl8ZW58MHx8MHx8&w=1000&q=80"),
-      carouselItemModel(
-          "https://media.istockphoto.com/id/1213542890/photo/woman-checking-product-details-online-using-mobile-phone-at-grocery-store.jpg?s=612x612&w=0&k=20&c=T7DZFgTO9DQqZI_ZTNEwm38dnkm-6lDnHFKH7cv_wkE="),
-    ];
-
     return Scaffold(
         body: a == 0
             ? Center(
@@ -77,32 +75,10 @@ class _HomeState extends State<Home> {
                   children: [
                     Column(
                       children: [
-                        // CarouselSlider(
-                        //     items: items,
-                        //     options: CarouselOptions(
-                        //       onPageChanged: (index, reason) {
-                        //         activeIndex = index;
-                        //         setState(() {});
-                        //         print("index $activeIndex");
-                        //         print("reason..$reason");
-                        //       },
-                        //       initialPage: 1,
-                        //       height: 180.0,
-                        //       enlargeCenterPage: false,
-                        //       autoPlay: true,
-                        //       aspectRatio: 16 / 9,
-                        //       autoPlayCurve: Curves.fastOutSlowIn,
-                        //       enableInfiniteScroll: true,
-                        //       autoPlayAnimationDuration:
-                        //           Duration(milliseconds: 600),
-                        //       viewportFraction: 0.8,
-                        //     )),
-
                         CarouselSlider.builder(
-                            itemCount: getBanData!.data!.length,
+                            itemCount: topBannerData.length,
                             itemBuilder: (context, index, realIndex) =>
-                                carouselItemModel(
-                                    getBanData!.data![index].bannerImage),
+                                carouselItemModel(topBannerData[index]),
                             options: CarouselOptions(
                               onPageChanged: (index, reason) {
                                 activeIndex = index;
@@ -124,49 +100,70 @@ class _HomeState extends State<Home> {
                         SizedBox(height: 16.w),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: indicators(items.length, activeIndex))
+                            children:
+                                indicators(topBannerData.length, activeIndex))
                       ],
                     ),
                     SizedBox(height: 25.h),
-                    Container(
-                      padding: EdgeInsets.only(left: 2.sp, right: 2.sp),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width / 2.1,
-                                height: 170,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  border: Border.all(color: Colors.black54),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                        "https://c4.wallpaperflare.com/wallpaper/835/732/63/discounts-interest-joy-girl-wallpaper-preview.jpg"),
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width / 2.1,
-                                height: 170,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  border: Border.all(color: Colors.black54),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7vLAuEc9vNDNDiR4mw-NPZJOe4A7ieXkybhHEumcXopd26yKTI58loSxIDOAsuRpS2KQ&usqp=CAU"),
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
-                              )
-                            ],
+                    // Container(
+                    //   padding: EdgeInsets.only(left: 2.sp, right: 2.sp),
+                    //   child: Column(
+                    //     children: [
+                    //       Row(
+                    //         mainAxisAlignment: MainAxisAlignment.center,
+                    //         children: [
+                    //           Container(
+                    //             width: MediaQuery.of(context).size.width / 2.1,
+                    //             height: 170,
+                    //             decoration: BoxDecoration(
+                    //               color: Colors.blue,
+                    //               border: Border.all(color: Colors.black54),
+                    //               image: DecorationImage(
+                    //                 image: NetworkImage(
+                    //                     "https://c4.wallpaperflare.com/wallpaper/835/732/63/discounts-interest-joy-girl-wallpaper-preview.jpg"),
+                    //                 fit: BoxFit.fill,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           Container(
+                    //             width: MediaQuery.of(context).size.width / 2.1,
+                    //             height: 170,
+                    //             decoration: BoxDecoration(
+                    //               color: Colors.red,
+                    //               border: Border.all(color: Colors.black54),
+                    //               image: DecorationImage(
+                    //                 image: NetworkImage(
+                    //                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7vLAuEc9vNDNDiR4mw-NPZJOe4A7ieXkybhHEumcXopd26yKTI58loSxIDOAsuRpS2KQ&usqp=CAU"),
+                    //                 fit: BoxFit.fill,
+                    //               ),
+                    //             ),
+                    //           )
+                    //         ],
+                    //       ),
+                    //       // HomeGrid(),
+                    //     ],
+                    //   ),
+                    // )
+                    GridView.builder(
+                      itemCount: 8,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3),
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width / 2.1,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            border: Border.all(color: Colors.black54),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                  "https://c4.wallpaperflare.com/wallpaper/835/732/63/discounts-interest-joy-girl-wallpaper-preview.jpg"),
+                              fit: BoxFit.fill,
+                            ),
                           ),
-                          // HomeGrid(),
-                        ],
-                      ),
-                    )
+                        );
+                      },
+                    ),
                   ],
                 )));
   }
