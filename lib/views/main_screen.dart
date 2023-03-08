@@ -124,6 +124,7 @@ class _MainScreenState extends State<MainScreen> {
       debugPrint(e);
     });
   }
+  //y
 
   Future<void> _getCurrentPosition() async {
     //Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
